@@ -10,8 +10,7 @@ import org.springframework.batch.item.ItemProcessor;
 public class AdjustPriceProductProcessor implements ItemProcessor<Product, Product> {
 	
 	private JobExecution jobExecution;
-	
-	private int count; 
+
 	
 	private final String UPPER_BOUND = "upperbound";
 	private final String LOWER_BOUND = "lowerbound";
@@ -28,9 +27,6 @@ public class AdjustPriceProductProcessor implements ItemProcessor<Product, Produ
 		
 		int lowerBound = jobExecution.getExecutionContext().getInt(className + LOWER_BOUND);
 		int upperBound = jobExecution.getExecutionContext().getInt(className + UPPER_BOUND);
-		
-		System.out.println(lowerBound + " - " + upperBound);
-		System.out.println(product.getPricePerUnit());
 
 		if (product.getPricePerUnit() > upperBound) {
 			product.setPricePerUnit(upperBound);

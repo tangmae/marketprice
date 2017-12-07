@@ -5,6 +5,7 @@ import java.util.Map;
 
 import marketprice.marketpriceapp.job.CheckPriceJob;
 import marketprice.marketpriceapp.job.ImportProductJob;
+import marketprice.marketpriceapp.job.ImportViaMessageJob;
 import marketprice.marketpriceapp.processor.ImportProductTypeProcessor;
 
 import org.springframework.batch.core.JobParameter;
@@ -29,7 +30,10 @@ public class MarketScheduler {
 	@Autowired
 	private CheckPriceJob checkPriceJob;
 	
-	@Scheduled(fixedRate = 5000)
+	@Autowired
+	private ImportViaMessageJob importViaMessageJob;
+	
+	@Scheduled(fixedRate = 20000)
 	public void runImportProductJob() {
 		Map<String, JobParameter> confMap = new HashMap<>();
 		confMap.put("time", new JobParameter(System.currentTimeMillis()));

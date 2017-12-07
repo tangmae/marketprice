@@ -42,10 +42,7 @@ public class UpdateProductPriceWriter implements ItemWriter<Product> {
 				Egg egg = (Egg) pd;
 				eggDao.updatePricePerUnit(egg.getPricePerUnit(), egg);
 			}
-			System.out.println("UPDATE PRICE FOR " + pd.getClass().getName());
 		}
-		
-		
 	}
 
 }

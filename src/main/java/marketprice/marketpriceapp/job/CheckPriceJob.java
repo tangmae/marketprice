@@ -50,7 +50,7 @@ public class CheckPriceJob {
 				.incrementer(new RunIdIncrementer())
 				.listener(jobCompleteListener)
 				.start(getProductListStep())
-				.next(getOutRangePriceProduct())
+				.next(getOutRangePriceProductStep())
 				.build();
 	}
 	
@@ -75,8 +75,8 @@ public class CheckPriceJob {
 		return new ProductTypeListProcessor();
 	}
 	
-	@Bean("GetOutRangePriceProduct")
-	public Step getOutRangePriceProduct() {
+	@Bean("GetOutRangePriceProductStep")
+	public Step getOutRangePriceProductStep() {
 		return stepBuilderFactory.get("GetOutRangePriceProduct")
 				.<Product, Product>chunk(1)
 				.reader(outboundPriceProductReader())
