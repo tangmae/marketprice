@@ -4,9 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import marketprice.marketpriceapp.job.CheckPriceJob;
+import marketprice.marketpriceapp.job.DeleteExpiredProductJob;
 import marketprice.marketpriceapp.job.ImportProductJob;
-import marketprice.marketpriceapp.job.ImportViaMessageJob;
-import marketprice.marketpriceapp.processor.ImportProductTypeProcessor;
 
 import org.springframework.batch.core.JobParameter;
 import org.springframework.batch.core.JobParameters;
@@ -31,9 +30,10 @@ public class MarketScheduler {
 	private CheckPriceJob checkPriceJob;
 	
 	@Autowired
-	private ImportViaMessageJob importViaMessageJob;
+	private DeleteExpiredProductJob deleteExpiredProductJob;
 	
-	@Scheduled(fixedRate = 20000)
+	
+	@Scheduled(fixedRate = 500000)
 	public void runImportProductJob() {
 		Map<String, JobParameter> confMap = new HashMap<>();
 		confMap.put("time", new JobParameter(System.currentTimeMillis()));
@@ -48,7 +48,7 @@ public class MarketScheduler {
 	        }
 	}
 	
-	@Scheduled(fixedRate = 100000)
+	@Scheduled(fixedRate = 500000)
 	public void runCheckingPriceJob() {
 		Map<String, JobParameter> confMap = new HashMap<>();
 		confMap.put("time", new JobParameter(System.currentTimeMillis()));
@@ -56,6 +56,22 @@ public class MarketScheduler {
 		
 		 try {
 	            jobLauncher.run(checkPriceJob.checkPriceJob(), jobParameters);
+
+	        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException
+	                | JobParametersInvalidException | org.springframework.batch.core.repository.JobRestartException e) {
+	            System.out.println(e.getMessage());
+	        }
+		
+	}
+	
+	@Scheduled(cron = "0 9 * * * 1-5")
+	public void runDeleteExpiredProductJob() {
+		Map<String, JobParameter> confMap = new HashMap<>();
+		confMap.put("time", new JobParameter(System.currentTimeMillis()));
+		JobParameters jobParameters = new JobParameters(confMap);
+		
+		 try {
+	            jobLauncher.run(deleteExpiredProductJob.deleteExpiredProductJob(), jobParameters);
 
 	        } catch (JobExecutionAlreadyRunningException | JobInstanceAlreadyCompleteException
 	                | JobParametersInvalidException | org.springframework.batch.core.repository.JobRestartException e) {

@@ -1,11 +1,10 @@
 package marketprice.marketpriceapp.messagelistener;
 
-import marketprice.marketpriceapp.receiver.Receiver;
+
+import marketprice.marketpriceapp.receiver.OwnerImportProductHandler;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
@@ -13,7 +12,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
-import org.springframework.batch.core.JobExecution;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,9 +30,6 @@ public class ImportProductListener {
 	
 	@Value("${rabbit.server.queuename}")
 	private String rabbitQueueName;
-	
-	@Autowired
-	private Receiver receiver;
 	
 	@Bean
 	public Queue queue() {
@@ -60,9 +56,12 @@ public class ImportProductListener {
     }
 	
 	@Bean
-    MessageListenerAdapter listenerAdapter(Receiver receiver) {
-        return new MessageListenerAdapter(receiver, "receive");
+    MessageListenerAdapter listenerAdapter(OwnerImportProductHandler handler) {
+		MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(handler, new Jackson2JsonMessageConverter());
+		messageListenerAdapter.setDefaultListenerMethod("receive");
+        return messageListenerAdapter;
     }
 
-
 }
+
+

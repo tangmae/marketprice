@@ -21,7 +21,6 @@ public class ProductTypeListProcessor implements ItemProcessor<int[], String>{
     	jobExecution = stepExecution.getJobExecution(); 
     }
 	
-	
 	@Override
 	public String process(int[] priceRange) throws Exception {
 		

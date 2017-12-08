@@ -1,13 +1,16 @@
 package marketprice.marketpriceapp.job;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import marketprice.marketpriceapp.entity.Product;
 import marketprice.marketpriceapp.listener.JobCompletionListener;
+import marketprice.marketpriceapp.processor.ConvertToProductProcessor;
 import marketprice.marketpriceapp.processor.ImportProductTypeProcessor;
 import marketprice.marketpriceapp.reader.OwnerMessageReader;
+import marketprice.marketpriceapp.writer.ImportProductViaMessageWriter;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -59,25 +62,31 @@ public class ImportViaMessageJob {
 	@Bean("GetImportProductStep")
 	public Step getImportProductStep() {
 		return this.stepBuilderFactory.get("GetImportProductStep")
-				.<String, List<Product>>chunk(1)
+				.<HashMap<String, Object>, Product>chunk(1)
 				.reader(ownerMessageReader())
-				.processor(importProductTypeProcessor())
+				.processor(convertToProductProcessor())
+				.writer(importProductViaMessageWriter())
 				.build();
 	}
 	
 	@Bean("OwnerMessageReader")
-//	@StepScope
+	@StepScope
 	public OwnerMessageReader ownerMessageReader(){
 		return new OwnerMessageReader();
 	}
 	
 	
-	@Bean("ImportProductTypeProcessor")
-//	@StepScope
-	public ImportProductTypeProcessor importProductTypeProcessor(){
-		return new ImportProductTypeProcessor();
+	@Bean("ConvertToProductProcessor")
+	@StepScope
+	public ConvertToProductProcessor convertToProductProcessor(){
+		return new ConvertToProductProcessor();
 	}
 	
+	@Bean("ImportProductViaMessageWriter")
+	@StepScope
+	public ImportProductViaMessageWriter importProductViaMessageWriter(){
+		return new ImportProductViaMessageWriter();
+	}
 	
 	
 	

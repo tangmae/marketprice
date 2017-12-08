@@ -63,17 +63,17 @@ public class ImportProductJob {
 		
 	}
 	
-	@Bean("ImportProductProcessor")
-	@StepScope
+	@Bean("ImportProductTypeProcessor")
 	public ImportProductTypeProcessor importProductProcessor() {
-		ImportProductTypeProcessor importProductProcessor = new ImportProductTypeProcessor();
-		return importProductProcessor;
+		return new ImportProductTypeProcessor();
 	}
 	
-	@Bean("GetImportProductTypeStep")
+	@Bean("ImportProductWriter")
 	@StepScope
 	public ImportProductWriter importProductWriter() {
 		return new ImportProductWriter();
 	}
+
 	
+
 }

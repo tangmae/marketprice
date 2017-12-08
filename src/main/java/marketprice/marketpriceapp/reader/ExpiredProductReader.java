@@ -34,17 +34,6 @@ public class ExpiredProductReader implements ItemReader<Product>{
 	
 	private int count = 0;
 	
-	private JobExecution jobExecution;
-	
-	private final String UPPER_BOUND = "upperbound";
-	private final String LOWER_BOUND = "lowerbound";
-	
-	@BeforeStep
-    public void beforeStep(StepExecution stepExecution) {
-    	jobExecution = stepExecution.getJobExecution(); 
-    }
-	
-	
 	@Override
 	public Product read() {
 		
@@ -69,18 +58,15 @@ public class ExpiredProductReader implements ItemReader<Product>{
 		List<ProductType> pdTypeList = productTypeDao.findAll();
 		
 		for (ProductType pdT : pdTypeList) {
-			
-			int lowerBound = jobExecution.getExecutionContext().getInt(pdT.getName() + LOWER_BOUND);
-			int upperBound = jobExecution.getExecutionContext().getInt(pdT.getName() + UPPER_BOUND);
-			
+		
 			if (pdT.getName().equalsIgnoreCase("Sugar")) {
-				this.productList.addAll(sugarDao.findOutRangePriceProduct(lowerBound, upperBound));
+				this.productList.addAll(sugarDao.findExpiredSugar());
 			}
 			if (pdT.getName().equalsIgnoreCase("Rice")) {
-				this.productList.addAll(riceDao.findOutRangePriceProduct(lowerBound, upperBound));
+				this.productList.addAll(riceDao.findExpiredRice());
 			}
 			if (pdT.getName().equalsIgnoreCase("Egg")) {
-				this.productList.addAll(eggDao.findOutRangePriceProduct(lowerBound, upperBound));
+				this.productList.addAll(eggDao.findExpiredEgg());
 			}
 			
 		}

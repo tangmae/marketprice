@@ -10,7 +10,6 @@ import org.springframework.batch.item.ItemProcessor;
 public class AdjustPriceProductProcessor implements ItemProcessor<Product, Product> {
 	
 	private JobExecution jobExecution;
-
 	
 	private final String UPPER_BOUND = "upperbound";
 	private final String LOWER_BOUND = "lowerbound";

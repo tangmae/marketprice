@@ -30,6 +30,7 @@ public class RiceDAO extends ProductDAO {
 
 	private final String ALL_COLUMN = " rice_id, price_per_unit, volumn, import_date, delete_flag, owner_id ";
 	private final String TABLE_NAME = " rice ";
+	private final String COMMON_CONDITION = "delete_flag IS FALSE";
 
 	@Override
 	public List<Rice> findAll () {
@@ -38,6 +39,8 @@ public class RiceDAO extends ProductDAO {
 	  query.append(ALL_COLUMN);
 	  query.append(" FROM ");
 	  query.append(TABLE_NAME);
+	  query.append(" WHERE ");
+	  query.append(COMMON_CONDITION);
 	  query.append(" ORDER BY rice_id ASC ");
 	  
 	  return this.jdbcTemplate.query(query.toString(), new BeanPropertyRowMapper<Rice>(Rice.class));
@@ -51,12 +54,29 @@ public class RiceDAO extends ProductDAO {
 	  query.append(TABLE_NAME);
 	  query.append(" WHERE ");
 	  query.append(" rice_id = :riceId ");
+	  query.append(" AND ");
+	  query.append(COMMON_CONDITION);
 	  
 	  MapSqlParameterSource params = new MapSqlParameterSource();
 	  params.addValue("riceId", rice.getRiceId());
 	  
 	  return this.namedParameterJdbcTemplate.queryForObject(query.toString(), params, new BeanPropertyRowMapper<Rice>(Rice.class));
 	  
+	}
+	
+	public List<Rice> findExpiredRice() {
+		StringBuilder query = new StringBuilder();
+		query.append(" SELECT ");
+		query.append(ALL_COLUMN);
+		query.append(" FROM ");
+		query.append(TABLE_NAME);
+		query.append(" WHERE ");
+		query.append(" DATEDIFF(NOW(), DATE(import_date)) > 1 ");
+		query.append(" AND ");
+		query.append(COMMON_CONDITION);
+		query.append(";");
+		
+		return this.jdbcTemplate.query(query.toString(), new BeanPropertyRowMapper<Rice>(Rice.class));
 	}
 	
 	@Override
@@ -85,7 +105,7 @@ public class RiceDAO extends ProductDAO {
 		query.append(" rice_id = :riceId ");
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("deleteFlag", delete);
+		params.addValue("deleteFlag", true);
 		params.addValue("riceId", rice.getRiceId());
 		
 		this.namedParameterJdbcTemplate.update(query.toString(), params);	
@@ -122,9 +142,11 @@ public class RiceDAO extends ProductDAO {
 		query.append(" FROM ");
 		query.append(TABLE_NAME);
 		query.append(" WHERE ");
-		query.append(" price_per_unit > :upperbound ");
+		query.append(" ( price_per_unit > :upperbound ");
 		query.append(" OR ");
-		query.append(" price_per_unit < :lowerbound ");
+		query.append(" price_per_unit < :lowerbound ) ");
+		query.append(" AND ");
+		query.append(COMMON_CONDITION);
 		query.append(" ORDER BY rice_id ASC ");
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();

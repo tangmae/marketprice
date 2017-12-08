@@ -7,7 +7,9 @@ import javax.sql.DataSource;
 import marketprice.marketpriceapp.entity.Product;
 import marketprice.marketpriceapp.listener.JobCompletionListener;
 import marketprice.marketpriceapp.processor.ImportProductTypeProcessor;
+import marketprice.marketpriceapp.reader.ExpiredProductReader;
 import marketprice.marketpriceapp.reader.ProductTypeReader;
+import marketprice.marketpriceapp.writer.DeleteProductWriter;
 import marketprice.marketpriceapp.writer.ImportProductWriter;
 
 import org.springframework.batch.core.Job;
@@ -38,7 +40,7 @@ public class DeleteExpiredProductJob {
 	private JobCompletionListener jobCompleteListener;
 	
 	@Bean("DeleteExpiredProductJob")
-	public Job importProductJob() {
+	public Job deleteExpiredProductJob() {
 		return jobBuilderFactory.get("DeleteExpiredProductJob")
 				.incrementer(new RunIdIncrementer())
 				.listener(jobCompleteListener)
@@ -49,23 +51,23 @@ public class DeleteExpiredProductJob {
 	@Bean("DeleteExpiredProductStep")
 	public Step deleteExpiredProductStep() {
 		return stepBuilderFactory.get("DeleteExpiredProductStep")
-				.<Object, List<Product>>chunk(1)
-				.reader(productTypeReader())
-				.writer(importProductWriter())
+				.<Object, Product>chunk(1000)
+				.reader(expiredProductReader())
+				.writer(deleteProductWriter())
 				.build();
 	}
 	
-	@Bean("ProductTypeReader")
+	@Bean("ExpiredProductReader")
 	@StepScope
-	public ProductTypeReader productTypeReader() {
-		return new ProductTypeReader();
+	public ExpiredProductReader expiredProductReader() {
+		return new ExpiredProductReader();
 		
 	}
 	
-	@Bean("GetImportProductTypeStep")
+	@Bean("DeleteProductWriter")
 	@StepScope
-	public ImportProductWriter importProductWriter() {
-		return new ImportProductWriter();
+	public DeleteProductWriter deleteProductWriter() {
+		DeleteProductWriter deleteProductWriter = new DeleteProductWriter();
+		return deleteProductWriter;
 	}
-
 }

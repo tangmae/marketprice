@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 
 import marketprice.marketpriceapp.entity.Egg;
 import marketprice.marketpriceapp.entity.Owner;
+import marketprice.marketpriceapp.entity.Rice;
 import marketprice.marketpriceapp.entity.Sugar;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class SugarDAO {
 
 	private final String ALL_COLUMN = " sugar_id, price_per_unit, volumn, import_date, delete_flag, owner_id ";
 	private final String TABLE_NAME = " sugar ";
+	private final String COMMON_CONDITION = "delete_flag IS FALSE";
 
 	public List<Sugar> findAll () {
 	  StringBuilder query = new StringBuilder();
@@ -36,9 +38,11 @@ public class SugarDAO {
 	  query.append(ALL_COLUMN);
 	  query.append(" FROM ");
 	  query.append(TABLE_NAME);
+	  query.append(" WHERE ");
+	  query.append(COMMON_CONDITION);
 	  query.append(" ORDER BY sugar_id ASC ");
 	  
-	  return this.jdbcTemplate.query(query.toString(), new BeanPropertyRowMapper(Sugar.class));
+	  return this.jdbcTemplate.query(query.toString(), new BeanPropertyRowMapper<Sugar>(Sugar.class));
 	}
 
 	public Sugar findById (Sugar sugar) {
@@ -49,12 +53,28 @@ public class SugarDAO {
 	  query.append(TABLE_NAME);
 	  query.append(" WHERE ");
 	  query.append(" sugar_id = :sugarId ");
+	  query.append(" AND ");
+	  query.append(COMMON_CONDITION);
 	  
 	  MapSqlParameterSource params = new MapSqlParameterSource();
 	  params.addValue("sugarId", sugar.getSugarId());
 	  
-	  return this.namedParameterJdbcTemplate.queryForObject(query.toString(), params, new BeanPropertyRowMapper<Sugar>(Sugar.class));
-	  
+	  return this.namedParameterJdbcTemplate.queryForObject(query.toString(), params, new BeanPropertyRowMapper<Sugar>(Sugar.class)); 
+	}
+	
+	public List<Sugar> findExpiredSugar() {
+		StringBuilder query = new StringBuilder();
+		query.append(" SELECT ");
+		query.append(ALL_COLUMN);
+		query.append(" FROM ");
+		query.append(TABLE_NAME);
+		query.append(" WHERE ");
+		query.append(" DATEDIFF(NOW(), DATE(import_date)) > 1 ");
+		query.append(" AND ");
+		query.append(COMMON_CONDITION);
+		query.append(";");
+		
+		return this.jdbcTemplate.query(query.toString(), new BeanPropertyRowMapper<Sugar>(Sugar.class));
 	}
 	
 	public void updatePricePerUnit (int price, Sugar sugar) {
@@ -82,7 +102,7 @@ public class SugarDAO {
 		query.append(" sugar_id = :sugarId ");
 		
 		MapSqlParameterSource params = new MapSqlParameterSource();
-		params.addValue("deleteFlag", delete);
+		params.addValue("deleteFlag", true);
 		params.addValue("sugarId", sugar.getSugarId());
 		
 		this.namedParameterJdbcTemplate.update(query.toString(), params);
@@ -120,9 +140,11 @@ public class SugarDAO {
 		query.append(" FROM ");
 		query.append(TABLE_NAME);
 		query.append(" WHERE ");
-		query.append(" price_per_unit > :upperbound ");
+		query.append(" ( price_per_unit > :upperbound ");
 		query.append(" OR ");
-		query.append(" price_per_unit < :lowerbound ");
+		query.append(" price_per_unit < :lowerbound ) ");
+		query.append(" AND ");
+		query.append(COMMON_CONDITION);
 		query.append(" ORDER BY sugar_id ASC ");
 
 		MapSqlParameterSource params = new MapSqlParameterSource();
