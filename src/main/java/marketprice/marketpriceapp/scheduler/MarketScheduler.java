@@ -64,7 +64,7 @@ public class MarketScheduler {
 		
 	}
 	
-	@Scheduled(cron = "0 9 * * * 1-5")
+	@Scheduled(cron = "0 15 * * * 1-5")
 	public void runDeleteExpiredProductJob() {
 		Map<String, JobParameter> confMap = new HashMap<>();
 		confMap.put("time", new JobParameter(System.currentTimeMillis()));

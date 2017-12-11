@@ -75,7 +75,6 @@ public class ImportViaMessageJob {
 		return new OwnerMessageReader();
 	}
 	
-	
 	@Bean("ConvertToProductProcessor")
 	@StepScope
 	public ConvertToProductProcessor convertToProductProcessor(){

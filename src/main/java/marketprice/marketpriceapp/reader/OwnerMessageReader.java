@@ -16,7 +16,6 @@ public class OwnerMessageReader implements ItemReader<HashMap<String, Object>> {
 	@Autowired
 	private OwnerImportProductHandler ownerImportProductHandler;
 	
-
 	@Override
 	public HashMap<String, Object> read() {
 		
